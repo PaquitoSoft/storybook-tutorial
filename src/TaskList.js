@@ -1,5 +1,7 @@
 import React from 'react';
 import { bool, arrayOf, func } from 'prop-types';
+import { connect } from 'react-redux';
+import { archiveTask, pinTask } from './lib/store';
 
 import Task from './Task';
 
@@ -26,7 +28,7 @@ function EmptyList() {
 	);
 }
 
-function TaskList({ loading = false, tasks, onPinTask, onArchiveTask }) {
+export function TaskList({ loading = false, tasks, onPinTask, onArchiveTask }) {
 	const events = {
 		onPinTask, 
 		onArchiveTask
@@ -63,4 +65,18 @@ TaskList.propTypes = {
 	onArchiveTask: func.isRequired
 };
 
-export default TaskList;
+function mapStateToProps({ tasks }) {
+	return {
+		tasks: tasks.filter(task => task.state === 'TASK_INBOX' || task.state === 'TASK_PINNED')
+	};
+}
+
+function mapActions(dispatch) {
+	return {
+		onArchiveTask: id => dispatch(archiveTask(id)),
+		onPinTask: id => dispatch(pinTask(id))
+	};
+}
+
+export default connect(mapStateToProps, mapActions)(TaskList);
+
